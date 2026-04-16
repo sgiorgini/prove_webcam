@@ -88,6 +88,7 @@
   <button onclick="avvia()">Avvia</button>
 </div>
 <p id="hint">L'URL viene salvato solo nel tuo browser, non viene inviato a nessun server.</p>
+<p><a id="openDirect" href="#" target="_blank" rel="noopener noreferrer">Apri feed diretto in una nuova scheda</a></p>
 <div id="warning"></div>
 
 <div id="wrap">
@@ -101,6 +102,7 @@ const cam = document.getElementById('cam');
 const statusEl = document.getElementById('status');
 const wrap = document.getElementById('wrap');
 const urlInput = document.getElementById('urlInput');
+const openDirect = document.getElementById('openDirect');
 let refreshTimer = null;
 
 // Carica URL salvato
@@ -108,12 +110,22 @@ const saved = localStorage.getItem(STORAGE_KEY);
 if (saved) {
   urlInput.value = saved;
   avvia();
+} else if (urlInput.value.trim()) {
+  // Avvio automatico anche con URL precompilato
+  avvia();
 }
+
+urlInput.addEventListener('keydown', function (event) {
+  if (event.key === 'Enter') {
+    avvia();
+  }
+});
 
 function avvia() {
   const url = urlInput.value.trim();
   if (!url) return;
   localStorage.setItem(STORAGE_KEY, url);
+  openDirect.href = url;
 
   // Avvisa se URL è HTTP su pagina HTTPS (mixed content bloccato dal browser)
   const warningEl = document.getElementById('warning');
@@ -123,7 +135,7 @@ function avvia() {
       const base = u.protocol + '//' + u.host;
       warningEl.style.display = 'block';
       warningEl.innerHTML =
-        '⚠️ Il tuo URL usa HTTP ma questa pagina è HTTPS: il browser bloccherà il feed.<br>' +
+        'Il tuo URL usa HTTP ma questa pagina e HTTPS: il browser blocchera il feed.<br>' +
         'Soluzione: <a href="' + base + '" target="_blank">apri prima Home Assistant in una nuova scheda</a>, ' +
         'accetta il certificato, poi torna qui e premi di nuovo <strong>Avvia</strong>.';
     } catch(e) {}
