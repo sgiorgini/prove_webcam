@@ -38,6 +38,12 @@
       cursor: pointer;
     }
     button:hover { background: #0b5a96; }
+    .secondary {
+      background: #3a3a3a;
+    }
+    .secondary:hover {
+      background: #4a4a4a;
+    }
     #wrap {
       margin: 0 16px 16px;
       border-radius: 10px;
@@ -84,10 +90,11 @@
 <h1>Camera Casa</h1>
 
 <div id="setup">
-  <input id="urlInput" type="text" value="https://100.67.190.24:8123/api/camera_proxy/camera.192_168_1_5?token=7dcce6fc26d21b9fded500deecd59733f1b6453a13da3a162b60b3a597af8a32" />
+  <input id="urlInput" type="text" placeholder="Incolla qui Entity picture completa (https://.../api/camera_proxy/...?...token=...)" />
   <button onclick="avvia()">Avvia</button>
+  <button class="secondary" onclick="pulisci()">Pulisci</button>
 </div>
-<p id="hint">L'URL viene salvato solo nel tuo browser, non viene inviato a nessun server.</p>
+<p id="hint">Se vedi 403, copia di nuovo Entity picture da Home Assistant: il token della camera puo cambiare. L'URL viene salvato solo nel tuo browser.</p>
 <p><a id="openDirect" href="#" target="_blank" rel="noopener noreferrer">Apri feed diretto in una nuova scheda</a></p>
 <div id="warning"></div>
 
@@ -109,9 +116,6 @@ let refreshTimer = null;
 const saved = localStorage.getItem(STORAGE_KEY);
 if (saved) {
   urlInput.value = saved;
-  avvia();
-} else if (urlInput.value.trim()) {
-  // Avvio automatico anche con URL precompilato
   avvia();
 }
 
@@ -149,12 +153,21 @@ function avvia() {
   refreshTimer = setInterval(() => caricaFrame(url), 3000);
 }
 
+function pulisci() {
+  localStorage.removeItem(STORAGE_KEY);
+  urlInput.value = '';
+  openDirect.href = '#';
+  wrap.style.display = 'none';
+  statusEl.textContent = '';
+  clearInterval(refreshTimer);
+}
+
 function caricaFrame(base) {
   cam.src = base + (base.includes('?') ? '&' : '?') + 't=' + Date.now();
 }
 
 cam.addEventListener('error', function () {
-  statusEl.textContent = 'Feed non raggiungibile. Verifica URL, rete e che il server camera sia accessibile da questo dispositivo.';
+  statusEl.textContent = 'Feed non raggiungibile o 403. Copia di nuovo Entity picture da Home Assistant e verifica Tailscale attivo.';
 });
 
 cam.addEventListener('load', function () {
