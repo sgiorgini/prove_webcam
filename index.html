@@ -1,19 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Camera Casa</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #f5f5f5;
+    }
+
+    h1 {
+      margin: 16px;
+      font-size: 24px;
+    }
+
+    #wrap {
+      margin: 0 16px 16px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #333;
+      background: #000;
+    }
+
+    #cam {
+      display: block;
+      width: 100%;
+      min-height: 220px;
+      object-fit: cover;
+    }
+
+    #status {
+      margin: 10px 16px 20px;
+      font-size: 14px;
+      color: #ffb3b3;
+    }
+  </style>
 </head>
 <body>
 
 <h1>Live Camera</h1>
 
-<img id="cam" src="http://100.67.190.24:8123/api/camera_proxy/camera.192_168_1_5?token=a42ad2daaf9a623db0f62ba540fd023a7401f62430abd02db659fd6993d13709" width="100%">
+<div id="wrap">
+  <img id="cam" alt="Feed camera" />
+</div>
+<div id="status"></div>
 
 <script>
-setInterval(function() {
-  document.getElementById('cam').src =
-    'http://100.67.190.24:8123/api/camera_proxy/camera.192_168_1_5?token=a42ad2daaf9a623db0f62ba540fd023a7401f62430abd02db659fd6993d13709&t=' + new Date().getTime();
-}, 3000);
+const CAMERA_URL_BASE =
+  'https://100.67.190.24:8123/api/camera_proxy/camera.192_168_1_5?token=a42ad2daaf9a623db0f62ba540fd023a7401f62430abd02db659fd6993d13709';
+
+const cam = document.getElementById('cam');
+const statusEl = document.getElementById('status');
+
+function refreshFrame() {
+  cam.src = CAMERA_URL_BASE + '&t=' + Date.now();
+}
+
+cam.addEventListener('error', function() {
+  statusEl.textContent =
+    'Feed non raggiungibile. Verifica che l\'URL camera sia in HTTPS valido e accessibile da questa rete/dispositivo.';
+});
+
+cam.addEventListener('load', function() {
+  statusEl.textContent = '';
+});
+
+refreshFrame();
+setInterval(refreshFrame, 3000);
 </script>
 </body>
 </html>
