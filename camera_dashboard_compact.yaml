@@ -1,7 +1,7 @@
 title: Camera Casa
 views:
-  - title: Camera
-    path: camera
+  - title: Giardino
+    path: giardino
     icon: mdi:cctv
     panel: true
     cards:
