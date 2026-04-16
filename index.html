@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Camera Casa</title>
+</head>
+<body>
+
+<h1>Live Camera</h1>
+
+<img id="cam" src="http://100.67.190.24:8123/api/camera_proxy/camera.192_168_1_5?token=a42ad2daaf9a623db0f62ba540fd023a7401f62430abd02db659fd6993d13709" width="100%">
+
+<script>
+setInterval(function() {
+  document.getElementById('cam').src =
+    'http://100.67.190.24:8123/api/camera_proxy/camera.192_168_1_5?token=a42ad2daaf9a623db0f62ba540fd023a7401f62430abd02db659fd6993d13709&t=' + new Date().getTime();
+}, 3000);
+</script>
+
+</body>
+</html>
