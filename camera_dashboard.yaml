@@ -1,0 +1,18 @@
+title: Camera Casa
+views:
+  - title: Giardino
+    path: giardino
+    icon: mdi:cctv
+    cards:
+      - type: picture-entity
+        entity: camera.192_168_1_5
+        name: Giardino
+        show_state: false
+        show_name: true
+        camera_view: live
+      - type: entities
+        title: Stato camera
+        show_header_toggle: false
+        entities:
+          - entity: camera.192_168_1_5
+            name: Camera

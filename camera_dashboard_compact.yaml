@@ -1,0 +1,18 @@
+title: Camera Casa
+views:
+  - title: Camera
+    path: camera
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: picture-glance
+            title: Giardino
+            entities: []
+            camera_image: camera.192_168_1_5
+            camera_view: live
+          - type: button
+            name: Apri Home Assistant
+            icon: mdi:home-assistant
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/camera
