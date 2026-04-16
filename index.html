@@ -62,6 +62,21 @@
       font-size: 13px;
       color: #888;
     }
+    #warning {
+      margin: 0 16px 12px;
+      padding: 10px 14px;
+      background: #2a1a00;
+      border: 1px solid #a06000;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #ffd080;
+      display: none;
+    }
+    #warning a {
+      color: #ffd080;
+      text-decoration: underline;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -69,10 +84,11 @@
 <h1>Camera Casa</h1>
 
 <div id="setup">
-  <input id="urlInput" type="url" placeholder="Incolla qui l'URL del feed camera (es. https://...)" />
+  <input id="urlInput" type="text" placeholder="Incolla qui l'URL del feed camera (es. https://...)" />
   <button onclick="avvia()">Avvia</button>
 </div>
 <p id="hint">L'URL viene salvato solo nel tuo browser, non viene inviato a nessun server.</p>
+<div id="warning"></div>
 
 <div id="wrap">
   <img id="cam" alt="Feed camera" />
@@ -98,6 +114,22 @@ function avvia() {
   const url = urlInput.value.trim();
   if (!url) return;
   localStorage.setItem(STORAGE_KEY, url);
+
+  // Avvisa se URL è HTTP su pagina HTTPS (mixed content bloccato dal browser)
+  const warningEl = document.getElementById('warning');
+  if (url.startsWith('http://') && location.protocol === 'https:') {
+    try {
+      const u = new URL(url);
+      const base = u.protocol + '//' + u.host;
+      warningEl.style.display = 'block';
+      warningEl.innerHTML =
+        '⚠️ Il tuo URL usa HTTP ma questa pagina è HTTPS: il browser bloccherà il feed.<br>' +
+        'Soluzione: <a href="' + base + '" target="_blank">apri prima Home Assistant in una nuova scheda</a>, ' +
+        'accetta il certificato, poi torna qui e premi di nuovo <strong>Avvia</strong>.';
+    } catch(e) {}
+  } else {
+    warningEl.style.display = 'none';
+  }
   wrap.style.display = 'block';
   statusEl.textContent = '';
   clearInterval(refreshTimer);
