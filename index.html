@@ -11,37 +11,68 @@
       background: #111;
       color: #f5f5f5;
     }
-
-    h1 {
-      margin: 16px;
-      font-size: 24px;
+    h1 { margin: 16px; font-size: 24px; }
+    #setup {
+      margin: 0 16px 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-
+    #urlInput {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #222;
+      color: #f5f5f5;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      background: #0e6eb8;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button:hover { background: #0b5a96; }
     #wrap {
       margin: 0 16px 16px;
       border-radius: 10px;
       overflow: hidden;
       border: 1px solid #333;
       background: #000;
+      display: none;
     }
-
     #cam {
       display: block;
       width: 100%;
       min-height: 220px;
       object-fit: cover;
     }
-
     #status {
-      margin: 10px 16px 20px;
+      margin: 0 16px 20px;
       font-size: 14px;
       color: #ffb3b3;
+    }
+    #hint {
+      margin: 0 16px 16px;
+      font-size: 13px;
+      color: #888;
     }
   </style>
 </head>
 <body>
 
-<h1>Live Camera</h1>
+<h1>Camera Casa</h1>
+
+<div id="setup">
+  <input id="urlInput" type="url" placeholder="Incolla qui l'URL del feed camera (es. https://...)" />
+  <button onclick="avvia()">Avvia</button>
+</div>
+<p id="hint">L'URL viene salvato solo nel tuo browser, non viene inviato a nessun server.</p>
 
 <div id="wrap">
   <img id="cam" alt="Feed camera" />
@@ -49,27 +80,42 @@
 <div id="status"></div>
 
 <script>
-const CAMERA_URL_BASE =
-  'https://100.67.190.24:8123/api/camera_proxy/camera.192_168_1_5?token=a42ad2daaf9a623db0f62ba540fd023a7401f62430abd02db659fd6993d13709';
-
+const STORAGE_KEY = 'camera_url';
 const cam = document.getElementById('cam');
 const statusEl = document.getElementById('status');
+const wrap = document.getElementById('wrap');
+const urlInput = document.getElementById('urlInput');
+let refreshTimer = null;
 
-function refreshFrame() {
-  cam.src = CAMERA_URL_BASE + '&t=' + Date.now();
+// Carica URL salvato
+const saved = localStorage.getItem(STORAGE_KEY);
+if (saved) {
+  urlInput.value = saved;
+  avvia();
 }
 
-cam.addEventListener('error', function() {
-  statusEl.textContent =
-    'Feed non raggiungibile. Verifica che l\'URL camera sia in HTTPS valido e accessibile da questa rete/dispositivo.';
+function avvia() {
+  const url = urlInput.value.trim();
+  if (!url) return;
+  localStorage.setItem(STORAGE_KEY, url);
+  wrap.style.display = 'block';
+  statusEl.textContent = '';
+  clearInterval(refreshTimer);
+  caricaFrame(url);
+  refreshTimer = setInterval(() => caricaFrame(url), 3000);
+}
+
+function caricaFrame(base) {
+  cam.src = base + (base.includes('?') ? '&' : '?') + 't=' + Date.now();
+}
+
+cam.addEventListener('error', function () {
+  statusEl.textContent = 'Feed non raggiungibile. Verifica URL, rete e che il server camera sia accessibile da questo dispositivo.';
 });
 
-cam.addEventListener('load', function() {
+cam.addEventListener('load', function () {
   statusEl.textContent = '';
 });
-
-refreshFrame();
-setInterval(refreshFrame, 3000);
 </script>
 </body>
 </html>
